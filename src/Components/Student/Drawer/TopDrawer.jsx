@@ -1,3 +1,10 @@
+/**
+ * @file TopDrawer.jsx
+ * @description Layout component that combines the top Application Bar and the collapsible Side Drawer.
+ * It manages the theme provider, the opening/closing state of the drawer, and displays the current date and user info.
+ * @author Mohd Waris
+ */
+
 import * as React from "react";
 import {
   styled,
@@ -21,6 +28,10 @@ import SideDrawer from "./SideDrawer";
 const drawerWidth = 240;
 
 // --- 1. DEFINE THEME ---
+/**
+ * Custom Material-UI theme for the application layout.
+ * Defines the primary and secondary color palettes and typography settings.
+ */
 const universityTheme = createTheme({
   palette: {
     primary: {
@@ -39,7 +50,10 @@ const universityTheme = createTheme({
   },
 });
 
-// Function to display date
+/**
+ * Utility function to get the current date formatted as a string.
+ * @returns {string} Formatted date (e.g., "Nov 28, 2025").
+ */
 function currentDate() {
   const today = new Date();
   return today.toLocaleDateString("en-US", {
@@ -50,6 +64,10 @@ function currentDate() {
   });
 }
 
+/**
+ * Mixin for the open state of the drawer.
+ * Handles the transition animation and width expansion.
+ */
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
@@ -60,7 +78,10 @@ const openedMixin = (theme) => ({
   overflowX: "hidden",
 });
 
-//Drawer sliding closed
+/**
+ * Mixin for the closed state of the drawer.
+ * Handles the transition animation and width collapse to a mini-variant.
+ */
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
@@ -74,6 +95,10 @@ const closedMixin = (theme) => ({
   },
 });
 
+/**
+ * Styled component for the drawer header.
+ * Adjusts padding and height to align with the Toolbar.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -83,6 +108,10 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+/**
+ * Custom styled Drawer component.
+ * Applies the open/closed mixins based on the 'open' prop.
+ */
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme }) => ({
@@ -108,6 +137,10 @@ const Drawer = styled(MuiDrawer, {
   ],
 }));
 
+/**
+ * Custom styled AppBar component.
+ * Adjusts width and margin based on the drawer's open state.
+ */
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme }) => ({
@@ -130,9 +163,18 @@ const AppBar = styled(MuiAppBar, {
   ],
 }));
 
+/**
+ * TopDrawer Component
+ * The main layout shell containing the AppBar and the collapsible SideDrawer.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - The current user object.
+ * @param {Function} props.onLogout - Callback function to handle user logout.
+ */
 export default function TopDrawer({ user, onLogout }) {
   // Use the internal hook, but values will be overridden by the provider below
   const theme = useTheme();
+  
+  // State to manage the open/close status of the sidebar
   const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
@@ -148,11 +190,14 @@ export default function TopDrawer({ user, onLogout }) {
     <ThemeProvider theme={universityTheme}>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
+        
+        {/* Top Application Bar */}
         <AppBar
           position="fixed"
           sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
         >
           <Toolbar>
+            {/* Toggle Button for Drawer */}
             <IconButton
               color="inherit"
               aria-label="toggle drawer"
@@ -162,12 +207,15 @@ export default function TopDrawer({ user, onLogout }) {
             >
               {open ? <MenuOpenIcon /> : <MenuIcon />}
             </IconButton>
+            
+            {/* App Bar Content */}
             <Box
               display="flex"
               width="100%"
               justifyContent="space-between"
               alignItems="center"
             >
+              {/* Branding and Page Title */}
               <Box display="flex" flexDirection="column">
                 <Typography variant="h6" noWrap component="div">
                   EduEase
@@ -176,6 +224,8 @@ export default function TopDrawer({ user, onLogout }) {
                   My Dashboard
                 </Typography>
               </Box>
+              
+              {/* Date Display */}
               <Box display="flex">
                 <Typography sx={{ mr: 1 }} color="secondary">
                   Today:{" "}
@@ -185,6 +235,8 @@ export default function TopDrawer({ user, onLogout }) {
             </Box>
           </Toolbar>
         </AppBar>
+        
+        {/* Collapsible Side Drawer */}
         <Drawer variant="permanent" open={open}>
           <SideDrawer
             user={user}

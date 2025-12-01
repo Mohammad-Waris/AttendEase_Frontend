@@ -1,3 +1,11 @@
+/**
+ * @file StudentsPage.jsx
+ * @description Main component for the Teacher's Student Directory. 
+ * Fetches and displays a paginated, filterable, and searchable list of all students assigned to the teacher.
+ * Includes visual indicators for attendance performance and student status.
+ * @author Mohd Waris
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
@@ -31,7 +39,13 @@ import {
   MoreVert,
 } from '@mui/icons-material';
 import { API_URL } from "../../../config";
-// --- Performance Chip Component ---
+
+/**
+ * PerformanceChip Component
+ * Renders a chip indicating student attendance performance status based on percentage value.
+ * @param {Object} props - Component props.
+ * @param {number} props.attendance - The student's attendance percentage.
+ */
 const PerformanceChip = ({ attendance }) => {
   const theme = useTheme();
   let color = 'primary';
@@ -61,7 +75,12 @@ const PerformanceChip = ({ attendance }) => {
   );
 };
 
-// --- Status Chip Component ---
+/**
+ * StatusChip Component
+ * Renders a chip indicating the student's enrollment status (e.g., Active).
+ * @param {Object} props - Component props.
+ * @param {string} props.status - The status string (e.g., 'Active').
+ */
 const StatusChip = ({ status }) => {
   const theme = useTheme();
   const color = status.toLowerCase() === 'active' ? 'success' : 'default';
@@ -82,6 +101,12 @@ const StatusChip = ({ status }) => {
   );
 };
 
+/**
+ * StudentList Component (renamed to StudentList for internal use, exported as default function)
+ * Fetches and manages the list of students, handles filtering, selection, and pagination.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - The current teacher user object.
+ */
 export default function StudentList({ user }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,16 +124,22 @@ export default function StudentList({ user }) {
   const [selected, setSelected] = useState([]);
 
   // --- Data Fetching ---
+  /**
+   * Effect hook to fetch the list of students associated with the current teacher.
+   */
   useEffect(() => {
     const fetchData = async () => {
       let currentUser = user;
+      // Fallback to localStorage if user prop is missing
       if (!currentUser) {
         const storedUser = localStorage.getItem("university_user");
         if (storedUser) currentUser = JSON.parse(storedUser);
       }
 
       if (!currentUser?.contextId) {
-         return;
+          setError("User context not available. Cannot fetch student list.");
+          setLoading(false);
+          return;
       }
 
       const teacherId = currentUser.contextId;
@@ -133,7 +164,7 @@ export default function StudentList({ user }) {
 
         // Map API Data to Table Format
         const mappedData = data.map((item) => ({
-            id: item.id,
+            id: item.id, // Internal DB ID
             rollNumber: item.roll_number,
             name: item.student_name,
             email: item.email,
@@ -141,8 +172,8 @@ export default function StudentList({ user }) {
             course: item.course?.course_name || "N/A",
             subject: item.subject_name || "N/A",
             semester: item.current_semester, // NEW: Map semester
-            attendance: Math.round(item.attendance_percentage),
-            status: "Active", 
+            attendance: Math.round(item.attendance_percentage || 0), // Attendance percentage
+            status: "Active", // Hardcoded active status
             avatar: item.student_name ? item.student_name.charAt(0).toUpperCase() : '?',
         }));
 
@@ -161,7 +192,7 @@ export default function StudentList({ user }) {
   // --- Filtering Logic ---
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
-      // 1. Search Filter
+      // 1. Search Filter (Name, Email, or Roll Number)
       const matchesSearch =
         student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -187,6 +218,7 @@ export default function StudentList({ user }) {
 
   // --- Pagination Logic ---
   const handleChangePage = (event, newPage) => setPage(newPage);
+  
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);

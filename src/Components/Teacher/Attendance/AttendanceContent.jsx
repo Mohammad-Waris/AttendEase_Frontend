@@ -1,3 +1,11 @@
+/**
+ * @file AttendanceContent.jsx
+ * @description Main container component for the Teacher's Attendance module.
+ * Orchestrates data fetching (students, logs, subjects), manages local attendance state (optimistic updates),
+ * handles API synchronization (saving attendance), and renders the attendance table and summary cards.
+ * @author Mohd Waris
+ */
+
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
@@ -13,7 +21,8 @@ import AttendanceTable from "./AttendanceTable";
 import AttendanceCard from "./AttendanceCard";
 import DownloadAttendanceDialog from "./DownloadAttendanceDialog"; 
 import { API_URL } from "../../../config";
-// --- Theme ---
+
+// --- Theme Configuration ---
 const theme = createTheme({
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
@@ -27,6 +36,9 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Styled component to offset content below the app bar.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -35,14 +47,23 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-// Helper to format date as YYYY-MM-DD
+/**
+ * Helper function to format a Date object into a 'YYYY-MM-DD' string.
+ * Adjusts for timezone offset to ensure the correct local date is used.
+ * @param {Date} date - The date to format.
+ * @returns {string} The formatted date string.
+ */
 const formatDateKey = (date) => {
     const offset = date.getTimezoneOffset();
     const adjustedDate = new Date(date.getTime() - (offset*60*1000));
     return adjustedDate.toISOString().split('T')[0];
 };
 
-// Helper to format the timestamp for display
+/**
+ * Helper function to format an ISO timestamp for display.
+ * @param {string} isoString - The ISO date string.
+ * @returns {string} A user-friendly date string (e.g., "Dec 01, 11:18 AM") or "-" if invalid.
+ */
 const formatLastUpdated = (isoString) => {
     if (!isoString) return "-";
     const date = new Date(isoString);
@@ -57,11 +78,17 @@ const formatLastUpdated = (isoString) => {
     });
 };
 
+/**
+ * AttendanceContent Component
+ * The core logic hub for the attendance interface.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - The current user object containing contextId (teacherId).
+ */
 const AttendanceContent = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // --- Master Data ---
+  // --- Master Data State ---
   const [allStudents, setAllStudents] = useState([]);
   const [attendanceLogs, setAttendanceLogs] = useState([]);
   const [subjectsList, setSubjectsList] = useState([]); 
@@ -71,7 +98,13 @@ const AttendanceContent = ({ user }) => {
   const [apiFeedback, setApiFeedback] = useState({ open: false, message: '', severity: 'success' });
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
 
-  // 1. Fetch Data
+  // 1. Fetch Data Effect
+  /**
+   * Fetches initial data required for the attendance view:
+   * - List of students assigned to the teacher.
+   * - Historical attendance logs.
+   * - Subject mappings.
+   */
   useEffect(() => {
     const fetchData = async () => {
       let currentUser = user;
@@ -135,6 +168,10 @@ const AttendanceContent = ({ user }) => {
   }, [user]);
 
   // 2. Merge Logic
+  /**
+   * Memoized calculation to merge static student data with dynamic attendance logs
+   * for the currently selected date.
+   */
   const dailyData = useMemo(() => {
     const dateKey = formatDateKey(selectedDate);
     const todaysLogs = attendanceLogs.filter(log => log.date === dateKey);
@@ -170,6 +207,12 @@ const AttendanceContent = ({ user }) => {
   }, [allStudents, attendanceLogs, selectedDate]);
 
   // 3. Handle Local Updates (Optimistic)
+  /**
+   * Optimistically updates the local attendance state when a teacher toggles a status.
+   * This provides immediate UI feedback before the data is persisted to the backend.
+   * @param {string|number} studentId - ID of the student.
+   * @param {string} newStatus - The new status ('Present', 'Absent').
+   */
   const handleLocalUpdate = (studentId, newStatus) => {
       const dateKey = formatDateKey(selectedDate);
       const now = new Date().toISOString();
@@ -199,6 +242,10 @@ const AttendanceContent = ({ user }) => {
   };
 
   // 4. SAVE TO API
+  /**
+   * Persists the local attendance state to the backend API.
+   * Groups logs by subject and sends batch updates.
+   */
   const handleSaveAttendance = async () => {
     const dateKey = formatDateKey(selectedDate);
     // const baseUrl = "http://127.0.0.1:8000/api";

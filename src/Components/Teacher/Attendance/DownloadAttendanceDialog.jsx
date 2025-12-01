@@ -1,3 +1,11 @@
+/**
+ * @file DownloadAttendanceDialog.jsx
+ * @description Dialog component that enables teachers to generate and download attendance reports in Excel format.
+ * It provides filters for Month, Subject, Course, and Semester, processes the raw attendance logs,
+ * calculates monthly statistics, and exports the data using the XLSX library.
+ * @author Mohd Waris
+ */
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -16,9 +24,24 @@ import {
 } from '@mui/material';
 import * as XLSX from 'xlsx';
 
-// Helper to get days in a month
+/**
+ * Helper function to get the number of days in a specific month/year.
+ * @param {number} year - The year.
+ * @param {number} month - The month (1-12).
+ * @returns {number} The number of days in that month.
+ */
 const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
+/**
+ * DownloadAttendanceDialog Component
+ * Renders a modal for configuring and downloading attendance reports.
+ * @param {Object} props - Component props.
+ * @param {boolean} props.open - Controls the visibility of the dialog.
+ * @param {Function} props.onClose - Callback to close the dialog.
+ * @param {Array} props.students - Full list of student objects available to the teacher.
+ * @param {Array} props.logs - Full history of attendance logs.
+ * @param {Array} props.subjects - List of subjects assigned to the teacher.
+ */
 export default function DownloadAttendanceDialog({ 
   open, 
   onClose, 
@@ -29,16 +52,25 @@ export default function DownloadAttendanceDialog({
   // Default to current month (YYYY-MM)
   const currentMonthStr = new Date().toISOString().slice(0, 7);
   
+  // --- Form State ---
   const [selectedMonth, setSelectedMonth] = useState(currentMonthStr);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('');
   const [error, setError] = useState(null);
 
-  // Extract unique options based on full student data
+  // Extract unique options based on full student data for dropdowns
   const uniqueCourses = [...new Set(students.map(s => s.course))].filter(Boolean);
   const uniqueSemesters = [...new Set(students.map(s => s.semester))].filter(Boolean).sort((a, b) => a - b);
 
+  /**
+   * Main handler to process data and generate the Excel file.
+   * 1. Validates inputs.
+   * 2. Filters students based on selection.
+   * 3. Filters logs for the specific month and subject.
+   * 4. Maps daily attendance to columns.
+   * 5. Generates the .xlsx file.
+   */
   const handleDownload = () => {
     setError(null);
 
@@ -74,13 +106,13 @@ export default function DownloadAttendanceDialog({
        return log.date.startsWith(selectedMonth) && log.subject_name === selectedSubject;
     });
 
-    // Count distinct days where attendance was taken for this subject
+    // Count distinct days where attendance was taken for this subject (Total Classes Held)
     const uniqueClassDates = [...new Set(monthLogs.map(l => l.date))];
     const totalClassesHeld = uniqueClassDates.length;
 
     // 5. Construct Excel Data Row by Row
     const excelData = targetStudents.map(student => {
-        // Initialize row
+        // Initialize row with student basic info
         const row = {
             "Roll No": student.id, // Using ID/Roll Number
             "Name": student.name,
@@ -88,7 +120,7 @@ export default function DownloadAttendanceDialog({
 
         let daysPresent = 0;
 
-        // Loop through every day of the month (1 to 30/31)
+        // Loop through every day of the month (1 to 30/31) to populate columns
         for (let day = 1; day <= daysInMonth; day++) {
             // Construct date string YYYY-MM-DD
             const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -113,7 +145,7 @@ export default function DownloadAttendanceDialog({
                     // Class held but student not in log -> Not Marked
                     row[colName] = '-'; 
                 } else {
-                    // No class held on this date -> Empty
+                    // No class held on this date -> Empty cell
                     row[colName] = ''; 
                 }
             }
@@ -139,7 +171,7 @@ export default function DownloadAttendanceDialog({
 
     const worksheet = XLSX.utils.json_to_sheet(excelData, { header: headerOrder });
     
-    // Set column widths
+    // Set column widths for better readability
     const wscols = [
         { wch: 15 }, // Roll No
         { wch: 20 }, // Name
@@ -154,10 +186,11 @@ export default function DownloadAttendanceDialog({
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Report");
     
-    // File Name
+    // Generate File Name based on selection
     const safeSubject = selectedSubject.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const fileName = `Attendance_${safeSubject}_${selectedMonth}.xlsx`;
     
+    // Trigger Download
     XLSX.writeFile(workbook, fileName);
     
     onClose();
@@ -208,7 +241,7 @@ export default function DownloadAttendanceDialog({
                   onChange={(e) => setSelectedCourse(e.target.value)}
                 >
                   {uniqueCourses.map(c => (
-                     <MenuItem key={c} value={c}>{c}</MenuItem>
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -223,7 +256,7 @@ export default function DownloadAttendanceDialog({
                   onChange={(e) => setSelectedSemester(e.target.value)}
                 >
                   {uniqueSemesters.map(s => (
-                     <MenuItem key={s} value={s}>Sem {s}</MenuItem>
+                      <MenuItem key={s} value={s}>Sem {s}</MenuItem>
                   ))}
                 </Select>
               </FormControl>

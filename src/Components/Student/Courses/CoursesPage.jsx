@@ -1,3 +1,11 @@
+/**
+ * @file CoursesPage.jsx
+ * @description Component responsible for displaying the list of courses a student is enrolled in.
+ * Fetches course data including professor details, credits, and current semester from the backend API.
+ * Renders individual course cards with status and details.
+ * @author Mohd Waris
+ */
+
 import React, { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import {
@@ -17,6 +25,10 @@ import {
 } from "@mui/icons-material";
 import { API_URL } from '../../../config'
 
+/**
+ * Styled component for the drawer header area.
+ * Ensures content is pushed down correctly below the top app bar.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -25,7 +37,12 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-// Helper to convert number to ordinal string (1 -> 1st, 2 -> 2nd)
+/**
+ * Helper function to convert a semester number to its ordinal string representation.
+ * e.g., 1 -> "1st Semester", 2 -> "2nd Semester".
+ * @param {number} n - The semester number.
+ * @returns {string} The formatted semester string.
+ */
 const getOrdinalTerm = (n) => {
   if (!n) return "Current Semester";
   const s = ["th", "st", "nd", "rd"];
@@ -34,12 +51,16 @@ const getOrdinalTerm = (n) => {
 };
 
 /**
- * A single Course Card.
+ * CourseCard Component
+ * Renders a single course's details in a card format.
+ * Includes information like title, code, professor, term, and credits.
+ * @param {Object} props - Component props.
+ * @param {Object} props.course - The course data object.
  */
 function CourseCard({ course }) {
   const theme = useTheme();
 
-  // Helper to format grade
+  // Helper to format grade display text
   const formatGrade = (grade) => {
     if (grade === "in_progress") return "In Progress";
     return grade;
@@ -136,14 +157,27 @@ function CourseCard({ course }) {
 }
 
 /**
- * The main "My Courses" component.
+ * MyCourses Component
+ * The main container component for the Courses page.
+ * Handles fetching student profile and subject data, processing it, 
+ * and rendering the list of CourseCards.
  */
 export default function MyCourses() {
+  // State for storing the list of processed courses
   const [displayedCourses, setDisplayedCourses] = useState([]);
+  
+  // UI states for loading and error handling
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // --- Data Fetching ---
+  /**
+   * Effect hook to fetch course data on component mount.
+   * Performs two API calls:
+   * 1. Student Profile: To get the current semester.
+   * 2. Subjects Attendance: To get the list of enrolled subjects.
+   * Merges this data to create the course list.
+   */
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -196,7 +230,11 @@ export default function MyCourses() {
     fetchData();
   }, []);
 
-  // Helper to render content based on state
+  /**
+   * Helper function to determine what content to render based on current state.
+   * Handles Loading, Error, Empty, and Success states.
+   * @returns {JSX.Element} The content to display.
+   */
   const renderContent = () => {
     if (loading) {
       return (
@@ -235,14 +273,14 @@ export default function MyCourses() {
     <Box sx={{ p: 3, backgroundColor: "transparent" }}>
       <DrawerHeader />
       
-      {/* Header */}
+      {/* Header Section */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 600 }}>
           My Courses
         </Typography>
       </Box>
 
-      {/* Content */}
+      {/* Main Content Section */}
       <Box sx={{ mt: 3 }}>
         {renderContent()}
       </Box>

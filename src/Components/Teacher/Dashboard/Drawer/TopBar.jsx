@@ -1,3 +1,11 @@
+/**
+ * @file TopBar.jsx
+ * @description Layout component that combines the main AppBar (Top Bar) and the collapsible MuiDrawer.
+ * It manages the application's visual theme, drawer open/close state, displays branding and the current date,
+ * and wraps the SideNav component for navigation links.
+ * @author Mohd Waris
+ */
+
 import * as React from "react";
 import {
   styled,
@@ -13,10 +21,15 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import Box from "@mui/material/Box";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import CssBaseline from "@mui/material/CssBaseline"; // Imported globally in MiniDrawer, but safe to include for clarity
 import SideNav from "./SideNav";
+
 const drawerWidth = 240;
 
-// Function to display date
+/**
+ * Utility function to get the current date formatted as a string.
+ * @returns {string} Formatted date (e.g., "Nov 28, 2025").
+ */
 function currentDate() {
   const today = new Date();
   return today.toLocaleDateString("en-US", {
@@ -27,13 +40,17 @@ function currentDate() {
   });
 }
 
+/**
+ * Custom Material-UI theme for the application layout.
+ * Defines the primary and secondary color palettes and typography settings.
+ */
 const universityTheme = createTheme({
   palette: {
     primary: {
       main: "#003366", // Deep professional blue
     },
     secondary: {
-      main: "#a2a4a5ff", // Complementary gold
+      main: "#a2a4a5ff", // Grey/Silver (Secondary)
     },
     background: {
       default: "#f4f6f8", // Light grey background
@@ -44,21 +61,27 @@ const universityTheme = createTheme({
     h5: { fontWeight: 700 },
   },
 });
+
+/**
+ * Mixin for the opened state of the drawer.
+ * Defines full width and transition for opening.
+ */
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
-    // duration: theme.transitions.duration.enteringScreen,
     duration: 500,
   }),
   overflowX: "hidden",
 });
 
-//Drawer sliding closed
+/**
+ * Mixin for the closed state of the drawer (mini-variant).
+ * Defines collapsed width and transition for closing.
+ */
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
-    // duration: theme.transitions.duration.leavingScreen,
     duration: 500,
   }),
   overflowX: "hidden",
@@ -67,14 +90,23 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
+
+/**
+ * Styled component for the drawer header area.
+ * Ensures height alignment with the Toolbar.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
+
+/**
+ * Custom styled Drawer component.
+ * Applies the open/closed mixins based on the 'open' prop.
+ */
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme }) => ({
@@ -100,6 +132,10 @@ const Drawer = styled(MuiDrawer, {
   ],
 }));
 
+/**
+ * Custom styled AppBar component.
+ * Adjusts width and margin based on the drawer's open state for fluid layout.
+ */
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme }) => ({
@@ -122,10 +158,18 @@ const AppBar = styled(MuiAppBar, {
   ],
 }));
 
+/**
+ * TopBar Component
+ * Renders the responsive AppBar and the permanent, collapsing Drawer.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - The current teacher user object.
+ * @param {Function} props.onLogout - Callback function to handle user logout.
+ */
 export default function TopBar({ user, onLogout }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
 
+  // Handlers for AppBar button click
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -133,14 +177,18 @@ export default function TopBar({ user, onLogout }) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  
   return (
+    // Wrap component in ThemeProvider to apply custom universityTheme
     <ThemeProvider theme={universityTheme}>
       <>
+        {/* Top Application Bar */}
         <AppBar
           position="fixed"
           sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
         >
           <Toolbar>
+            {/* Drawer Toggle Button */}
             <IconButton
               color="inherit"
               aria-label="toggle drawer"
@@ -150,12 +198,15 @@ export default function TopBar({ user, onLogout }) {
             >
               {open ? <MenuOpenIcon /> : <MenuIcon />}
             </IconButton>
+            
+            {/* Title and Date Content */}
             <Box
               display="flex"
               width="100%"
               justifyContent="space-between"
               alignItems="center"
             >
+              {/* Branding and Dashboard Title */}
               <Box display="flex" flexDirection="column">
                 <Typography variant="h6" noWrap component="div">
                   EduEase
@@ -166,6 +217,8 @@ export default function TopBar({ user, onLogout }) {
                   Teacher's Dashboard
                 </Typography>
               </Box>
+              
+              {/* Current Date Display */}
               <Box display="flex">
                 <Typography sx={{ mr: 1 }} color="secondary">
                   Today:{" "}
@@ -175,6 +228,8 @@ export default function TopBar({ user, onLogout }) {
             </Box>
           </Toolbar>
         </AppBar>
+        
+        {/* Permanent, Collapsible Side Drawer */}
         <Drawer variant="permanent" open={open}>
           <SideNav
             user={user}

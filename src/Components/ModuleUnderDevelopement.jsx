@@ -1,3 +1,10 @@
+/**
+ * @file ModuleUnderDevelopment.jsx
+ * @description Reusable full-screen component displayed for features that are currently under construction.
+ * It provides a friendly message, an appropriate icon, and an easy way for the user to navigate back.
+ * @author Mohd Waris
+ */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -14,6 +21,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ConstructionIcon from '@mui/icons-material/Construction';
 
 // --- 1. RE-USE YOUR UNIVERSITY THEME ---
+/**
+ * Custom Material-UI theme to maintain consistency with the university portal's branding.
+ */
 const universityTheme = createTheme({
   palette: {
     primary: {
@@ -32,6 +42,11 @@ const universityTheme = createTheme({
   },
 });
 
+/**
+ * ModuleUnderDevelopment Component
+ * Displays a full-screen, centrally aligned message indicating the module is under construction.
+ * * @returns {JSX.Element} The rendered component.
+ */
 const ModuleUnderDevelopment = () => {
   const navigate = useNavigate();
 
@@ -102,6 +117,7 @@ const ModuleUnderDevelopment = () => {
                 Go Back
               </Button>
               
+              {/* Optional secondary button for returning to dashboard: */}
               {/* <Button 
                 variant="contained" 
                 onClick={() => navigate('/teacher')} // Or /student based on role logic

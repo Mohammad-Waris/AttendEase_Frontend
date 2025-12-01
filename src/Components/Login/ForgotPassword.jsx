@@ -1,3 +1,11 @@
+/**
+ * @file ForgotPassword.jsx
+ * @description Authentication component that allows users to reset their password
+ * by providing their registered email address. Handles form validation, API communication,
+ * and displays success/error feedback.
+ * @author Mohd Waris
+ */
+
 import React, { useState } from "react";
 import {
   Avatar,
@@ -14,7 +22,11 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { API_URL } from "../../config";
-// --- Custom University Theme ---
+
+/**
+ * Custom Material-UI theme configuration.
+ * consistent with the main application theme.
+ */
 const universityTheme = createTheme({
   palette: {
     primary: {
@@ -63,17 +75,25 @@ const universityTheme = createTheme({
   },
 });
 
-// --- Main Forgot Password Component ---
+/**
+ * Main Forgot Password Component.
+ * Renders a split-screen layout with a form to request a password reset link.
+ */
 export default function App() {
+  // State for the email input field
   const [email, setEmail] = useState("");
   
-  // UI States
+  // UI States for managing feedback and interaction
   const [emailError, setEmailError] = useState(""); // For validation errors on the field
   const [apiError, setApiError] = useState("");     // For API errors (e.g. User not found)
   const [message, setMessage] = useState("");       // For success message
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);    // Loading state during API calls
 
-  // --- Form Validation ---
+  /**
+   * Validates the email input field.
+   * Checks for emptiness and valid email format.
+   * @returns {boolean} True if the form is valid, false otherwise.
+   */
   const validateForm = () => {
     let isValid = true;
     setEmailError("");
@@ -92,7 +112,11 @@ export default function App() {
     return isValid;
   };
 
-  // --- Form Submission Handler ---
+  /**
+   * Handles the form submission to request a password reset.
+   * Sends the email to the backend API.
+   * @param {Object} event - The form submission event.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -102,6 +126,7 @@ export default function App() {
     
     try {
       // --- API CALL ---
+      // Post request to the password reset endpoint
       const response = await fetch(`${API_URL}/send-password-reset-email/`, {
         method: "POST",
         headers: {
@@ -114,6 +139,7 @@ export default function App() {
 
       if (response.ok) {
         // --- SUCCESS ---
+        // Display confirmation message and clear input
         setMessage("Password reset link sent! Please check your inbox.");
         setEmail(""); // Clear the input field
       } else {
@@ -170,7 +196,7 @@ export default function App() {
               position: "relative",
             }}
           >
-            {/* Adds a dark overlay */}
+            {/* Adds a dark overlay for better text contrast if needed */}
             <Box
               sx={{
                 position: "absolute",
@@ -210,7 +236,7 @@ export default function App() {
                 width: "100%",
               }}
             >
-              {/* University Name/Logo */}
+              {/* University Name/Logo Header */}
               <Typography
                 component="h1"
                 variant="h6"
@@ -221,7 +247,7 @@ export default function App() {
                 My University Portal
               </Typography>
 
-              {/* Icon */}
+              {/* Form Icon */}
               <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
                 <HelpOutlineIcon />
               </Avatar>
@@ -247,20 +273,21 @@ export default function App() {
                 onSubmit={handleSubmit}
                 sx={{ mt: 1, width: "100%" }}
               >
-                {/* --- Success Message --- */}
+                {/* --- Success Message Alert --- */}
                 {message && (
                   <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
                     {message}
                   </Alert>
                 )}
                 
-                {/* --- API Error Message --- */}
+                {/* --- API Error Message Alert --- */}
                 {apiError && (
                   <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                     {apiError}
                   </Alert>
                 )}
 
+                {/* Email Input Field */}
                 <TextField
                   margin="normal"
                   required
@@ -288,7 +315,7 @@ export default function App() {
                   {loading ? "Sending..." : "Send Reset Link"}
                 </Button>
 
-                {/* --- Helper Links --- */}
+                {/* --- Navigation Helper Links --- */}
                 <Grid container justifyContent="center">
                   <Grid item>
                     <Link href="/" variant="body2" color="primary">

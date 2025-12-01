@@ -1,3 +1,10 @@
+/**
+ * @file ResetPassword.jsx
+ * @description Component for resetting user password using a token-based verification system.
+ * Handles password validation, API submission, and UI feedback (success/error states).
+ * @author Mohd Waris
+ */
+
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -19,7 +26,11 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { API_URL } from "../../config";
-// --- Custom University Theme (Consistent with Login/Forgot Password) ---
+
+/**
+ * Custom University Theme configuration.
+ * Ensures consistent branding across Login, Forgot Password, and Reset Password screens.
+ */
 const universityTheme = createTheme({
   palette: {
     primary: {
@@ -68,25 +79,41 @@ const universityTheme = createTheme({
   },
 });
 
+/**
+ * ResetPassword Component
+ * Captures the UID and Token from the URL, validates the new password input,
+ * and communicates with the backend to finalize the password reset process.
+ */
 export default function ResetPassword() {
   // Get uid and token from the URL params (e.g. /reset/:uid/:token)
   const { uid, token } = useParams();
   const navigate = useNavigate();
 
-  // Form State
+  // --- Form State Management ---
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
-  // UI State
+  // --- UI State Management ---
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  /**
+   * Toggles the visibility of the password fields.
+   */
   const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  /**
+   * Prevents focus loss when clicking the password visibility icon.
+   */
   const handleMouseDownPassword = (event) => event.preventDefault();
 
-  // --- Validation ---
+  /**
+   * Validates the password form fields.
+   * Checks for emptiness, matching passwords, and minimum length requirements.
+   * @returns {boolean} True if validation passes, otherwise False.
+   */
   const validateForm = () => {
     setError("");
     if (!password || !confirmPassword) {
@@ -104,7 +131,11 @@ export default function ResetPassword() {
     return true;
   };
 
-  // --- Submit Handler ---
+  /**
+   * Handles the password reset submission.
+   * Sends the new password to the API endpoint constructed with the UID and Token.
+   * @param {Object} event - The form submission event.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateForm()) return;
@@ -181,6 +212,7 @@ export default function ResetPassword() {
               position: "relative",
             }}
           >
+            {/* Dark overlay for better text contrast/image blending */}
             <Box
               sx={{
                 position: "absolute",
@@ -217,6 +249,7 @@ export default function ResetPassword() {
                 width: "100%",
               }}
             >
+              {/* University Header */}
               <Typography
                 component="h1"
                 variant="h6"
@@ -243,18 +276,20 @@ export default function ResetPassword() {
                 Please enter your new password below.
               </Typography>
 
-              {/* --- Success Message --- */}
+              {/* --- Success Message & Redirect Alert --- */}
               {success ? (
                  <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
-                    Password reset successful! Redirecting to login...
+                   Password reset successful! Redirecting to login...
                  </Alert>
               ) : (
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
                     
+                    {/* Error Display */}
                     {error && (
                         <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
                     )}
 
+                    {/* New Password Input */}
                     <TextField
                         margin="normal"
                         required
@@ -282,6 +317,8 @@ export default function ResetPassword() {
                             ),
                         }}
                     />
+
+                    {/* Confirm Password Input */}
                     <TextField
                         margin="normal"
                         required
@@ -296,6 +333,7 @@ export default function ResetPassword() {
                         disabled={loading}
                     />
 
+                    {/* Submit Button */}
                     <Button
                         type="submit"
                         fullWidth
@@ -308,7 +346,7 @@ export default function ResetPassword() {
                 </Box>
               )}
               
-              {/* Back Link */}
+              {/* Back to Login Link */}
               <Grid container justifyContent="center" sx={{ mt: 2 }}>
                   <Grid item>
                     <Link href="/" variant="body2" color="primary">
@@ -317,7 +355,7 @@ export default function ResetPassword() {
                   </Grid>
               </Grid>
 
-              {/* Copyright */}
+              {/* Copyright Footer */}
               <Typography
                 variant="body2"
                 color="text.secondary"

@@ -1,3 +1,11 @@
+/**
+ * @file SideDrawer.jsx
+ * @description Component responsible for the side navigation menu (Drawer) of the student portal.
+ * It handles route navigation, active route highlighting, displaying user info, and the logout process
+ * including a confirmation dialog and session cleanup.
+ * @author Mohd Waris
+ */
+
 import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
@@ -28,6 +36,10 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 const drawerWidth = 240;
 
+/**
+ * Styled component for the drawer header area.
+ * Adds necessary padding and aligns content to match the toolbar height.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -37,20 +49,40 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+/**
+ * SideDrawer Component
+ * Renders the persistent side navigation panel.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - The current user object containing name and code/roll number.
+ * @param {Function} props.onLogout - Optional parent callback to execute on logout (e.g., closing drawer state).
+ */
 export default function SideDrawer({ user, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation(); // Hook to get current route
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
 
   // --- Handlers for Logout Dialog ---
+
+  /**
+   * Opens the logout confirmation dialog.
+   */
   const handleLogoutClick = () => {
     setOpenLogoutDialog(true);
   };
 
+  /**
+   * Closes the logout confirmation dialog without taking action.
+   */
   const handleCloseDialog = () => {
     setOpenLogoutDialog(false);
   };
 
+  /**
+   * Confirms the logout action.
+   * 1. Clears local storage (tokens and user data).
+   * 2. Calls the parent onLogout handler if provided.
+   * 3. Redirects the user to the login page.
+   */
   const handleConfirmLogout = () => {
     setOpenLogoutDialog(false);
     
@@ -68,7 +100,7 @@ export default function SideDrawer({ user, onLogout }) {
     navigate("/", { replace: true });
   };
 
-  // List of items
+  // Configuration for main navigation items
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/student" },
     { text: "My Courses", icon: <EventAvailableIcon />, path: "/student/myCourses" },
@@ -76,11 +108,17 @@ export default function SideDrawer({ user, onLogout }) {
     { text: "Assignments", icon: <ChatBubbleIcon />, path: "/student/assignments" },
   ];
 
+  // Configuration for secondary items (Settings/Logout)
   const menuItems2 = [
     { text: "Settings", icon: <SettingsIcon />, path: "/student/settings" },
     { text: "Log Out", icon: <LogoutIcon />, action: "logout" }, 
   ];
 
+  /**
+   * Handles click events for drawer items.
+   * Routes to the specified path or triggers the logout action.
+   * @param {Object} item - The menu item object clicked.
+   */
   const handleItemClick = (item) => {
     if (item.action === "logout") {
       handleLogoutClick();
@@ -94,7 +132,7 @@ export default function SideDrawer({ user, onLogout }) {
       <DrawerHeader />
       <Divider />
       
-      {/* User Info List */}
+      {/* User Info List Section */}
       <List>
         <ListItem disablePadding>
           <ListItemButton>
@@ -110,10 +148,10 @@ export default function SideDrawer({ user, onLogout }) {
       </List>
       <Divider />
 
-      {/* Main Nav List */}
+      {/* Main Navigation List */}
       <List>
         {menuItems.map((item) => {
-          // Determine if this item matches the current URL
+          // Determine if this item matches the current URL for highlighting
           const isSelected = location.pathname === item.path;
 
           return (
@@ -122,7 +160,7 @@ export default function SideDrawer({ user, onLogout }) {
                 selected={isSelected}
                 onClick={() => navigate(item.path)}
                 sx={{
-                  // Highlight Styles
+                  // Highlight Styles for Active Route
                   "&.Mui-selected": {
                     backgroundColor: "rgba(0, 51, 102, 0.1)", // Light blue bg
                     color: "primary.main", // Dark blue text
@@ -150,7 +188,7 @@ export default function SideDrawer({ user, onLogout }) {
       </List>
       <Divider />
 
-      {/* Settings/Logout List */}
+      {/* Settings & Logout List */}
       <List>
         {menuItems2.map((item) => {
           // Check selection only if path exists (avoids highlighting Logout accidentally)

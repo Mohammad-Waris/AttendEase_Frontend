@@ -1,3 +1,11 @@
+/**
+ * @file AttendanceTable.jsx
+ * @description Central component for managing student attendance records.
+ * Integrates search, filtering (class, course, semester), pagination, and date selection.
+ * Dynamically switches between an editable table (for marking attendance) and a read-only table based on the selected date or edit mode.
+ * @author Mohd Waris
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -25,10 +33,21 @@ import SimpleCalendar from './AttendanceComponents/SimpleCalendar';
 import ReadOnlyAttendanceTable from './AttendanceComponents/ReadOnlyAttendanceTable';
 import EditableAttendanceTable from './AttendanceComponents/EditableAttendanceTable';
 
-// Helper
+// Helper functions for date comparison
 const isSameDay = (d1, d2) => d1.toDateString() === d2.toDateString();
 const isToday = (date) => isSameDay(date, new Date());
 
+/**
+ * AttendanceTable Component
+ * Orchestrates the display and manipulation of attendance data.
+ * @param {Object} props - Component props.
+ * @param {Array} props.students - List of student objects containing attendance status.
+ * @param {Date} props.selectedDate - The currently selected date for attendance.
+ * @param {Function} props.onDateChange - Callback when a new date is selected from the calendar.
+ * @param {Function} props.onAttendanceUpdate - Callback when a student's attendance status changes.
+ * @param {Function} props.onSave - Callback to persist attendance changes to the backend.
+ * @param {Function} props.onDownloadClick - Callback to trigger the download dialog.
+ */
 export default function AttendanceTable({
   students,          
   selectedDate,      
@@ -37,23 +56,30 @@ export default function AttendanceTable({
   onSave,
   onDownloadClick // NEW PROP
 }) {
-  // Filters
+  // --- Filter State Management ---
   const [classFilter, setClassFilter] = useState("all");
   const [courseFilter, setCourseFilter] = useState("all"); 
   const [semesterFilter, setSemesterFilter] = useState("all"); 
   const [notMarkedOnly, setNotMarkedOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
+  // --- View State Management ---
   const [isEditing, setIsEditing] = useState(false);
+  
+  // --- Pagination State ---
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Extract unique values for dropdowns
+  // Extract unique values for filter dropdowns to populate them dynamically
   const uniqueClasses = [...new Set(students.map(s => s.class))].filter(Boolean);
   const uniqueCourses = [...new Set(students.map(s => s.course))].filter(Boolean);
   const uniqueSemesters = [...new Set(students.map(s => s.semester))].filter(Boolean).sort((a, b) => a - b);
 
   // --- Filter Logic ---
+  /**
+   * Filters the student list based on search query and selected dropdown filters.
+   * Also handles the 'Not Marked' checkbox logic.
+   */
   const filteredStudents = students.filter((student) => {
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           student.id.toLowerCase().includes(searchQuery.toLowerCase());
@@ -66,26 +92,39 @@ export default function AttendanceTable({
   });
 
   // --- Pagination Logic ---
+  /**
+   * Slices the filtered student list to display only the current page's rows.
+   */
   const paginatedStudents = filteredStudents.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
 
   const handleChangePage = (event, newPage) => setPage(newPage);
+  
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
+  // Determine if the view should be editable
+  // Editable if it is the current date OR if the user has explicitly enabled editing mode
   const isTodayView = isToday(selectedDate);
   const canEdit = isTodayView || isEditing;
 
+  /**
+   * Handler when a date is selected from the calendar.
+   * Resets editing state and pagination.
+   */
   const handleDateSelect = (date) => {
     onDateChange(date);
     setIsEditing(false); 
     setPage(0);
   };
 
+  /**
+   * Trigger manual save operation via parent callback.
+   */
   const handleManualSave = () => {
     if (onSave) {
         onSave();
@@ -96,6 +135,7 @@ export default function AttendanceTable({
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
       <CssBaseline />
       
+      {/* --- Left Column: Calendar --- */}
       <Box sx={{ flex: '0 1 320px' }}>
         <SimpleCalendar
           selectedDate={selectedDate}
@@ -103,7 +143,10 @@ export default function AttendanceTable({
         />
       </Box>
 
+      {/* --- Right Column: Table & Controls --- */}
       <Box sx={{ flex: '1 1 auto', width: '100%' }}>
+        
+        {/* Toolbar Paper containing Filters and Actions */}
         <Paper 
           elevation={0}
           sx={{ 
@@ -113,8 +156,9 @@ export default function AttendanceTable({
             display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'space-between'
           }}
         >
-          {/* Filters */}
+          {/* Filters Section */}
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Search Input */}
             <TextField
               variant="outlined"
               size="small"
@@ -127,6 +171,7 @@ export default function AttendanceTable({
               }}
             />
             
+            {/* Class Filter */}
             <Select
               value={classFilter}
               onChange={(e) => setClassFilter(e.target.value)}
@@ -140,6 +185,7 @@ export default function AttendanceTable({
               ))}
             </Select>
 
+            {/* Course Filter */}
             <Select
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
@@ -153,6 +199,7 @@ export default function AttendanceTable({
               ))}
             </Select>
 
+            {/* Semester Filter */}
             <Select
               value={semesterFilter}
               onChange={(e) => setSemesterFilter(e.target.value)}
@@ -166,6 +213,7 @@ export default function AttendanceTable({
               ))}
             </Select>
 
+            {/* Not Marked Checkbox */}
             <FormControlLabel
               control={
                 <Checkbox 
@@ -179,9 +227,9 @@ export default function AttendanceTable({
             />
           </Box>
 
-          {/* Actions */}
+          {/* Actions Section (Download, Edit, Save) */}
           <Box sx={{ display: 'flex', gap: 1 }}>
-            {/* UPDATED: Added onClick handler */}
+            {/* Download Button */}
             <IconButton 
                 onClick={onDownloadClick}
                 sx={{ border: '1px solid #ddd', borderRadius: '8px' }}
@@ -189,6 +237,7 @@ export default function AttendanceTable({
               <DownloadIcon />
             </IconButton>
 
+            {/* Toggle Edit Mode Button (Only for past dates) */}
             {!isTodayView && (
                 <Button
                 variant={isEditing ? 'outlined' : 'contained'}
@@ -200,6 +249,7 @@ export default function AttendanceTable({
                 </Button>
             )}
             
+            {/* Manual Save Button (Visible in Edit Mode) */}
             {canEdit && (
                 <Button
                 variant="contained"
@@ -218,6 +268,7 @@ export default function AttendanceTable({
           </Box>
         </Paper>
         
+        {/* Conditional Table Rendering: Editable vs Read-Only */}
         {canEdit ? (
           <EditableAttendanceTable
             students={paginatedStudents} 

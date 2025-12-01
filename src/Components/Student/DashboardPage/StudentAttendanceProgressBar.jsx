@@ -1,3 +1,11 @@
+/**
+ * @file StudentAttendanceProgressBar.jsx
+ * @description Component responsible for fetching and displaying subject-wise attendance details.
+ * It visualizes attendance percentages using linear progress bars and calculates the overall aggregate attendance
+ * to update the parent dashboard component.
+ * @author Mohd Waris
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Card,
@@ -13,10 +21,13 @@ import {
   WarningAmberRounded
 } from '@mui/icons-material';
 import { API_URL } from "../../../config";
+
 // --- Theme colors provided by parent ---
 
 /**
- * Helper function to determine the color and status.
+ * Helper function to determine the color status and warning message based on attendance percentage.
+ * @param {number} percentage - The attendance percentage.
+ * @returns {Object} An object containing the color string (success/warning/error) and an optional message.
  */
 const getAttendanceStatus = (percentage) => {
   const requiredPercentage = 75;
@@ -33,7 +44,11 @@ const getAttendanceStatus = (percentage) => {
 };
 
 /**
- * Renders a single subject's attendance details.
+ * SubjectAttendanceItem Component
+ * Renders a single row for a subject, displaying its name, code, percentage,
+ * a linear progress bar, and a conditional warning if attendance is low.
+ * @param {Object} props - Component props.
+ * @param {Object} props.subject - The subject data object containing name, code, attended, and total classes.
  */
 const SubjectAttendanceItem = ({ subject }) => {
   // Calculate percentage (guard against division by zero)
@@ -105,7 +120,11 @@ const SubjectAttendanceItem = ({ subject }) => {
 };
 
 /**
- * Main component to display the attendance list.
+ * StudentAttendanceProgressBar Component
+ * Main container that fetches attendance data from the backend, calculates aggregate statistics,
+ * and renders the list of subjects.
+ * @param {Object} props - Component props.
+ * @param {Function} props.onOverallPercentageChange - Callback function to lift the calculated overall percentage to the parent component.
  */
 export default function StudentAttendanceProgressBar({ onOverallPercentageChange }) {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -113,6 +132,11 @@ export default function StudentAttendanceProgressBar({ onOverallPercentageChange
   const [error, setError] = useState(null);
 
   // --- Backend Data Fetching ---
+  /**
+   * Effect hook to fetch attendance data on mount.
+   * Retrieves data from the /students/me/subjects-attendance/ endpoint
+   * and maps it to the internal state structure.
+   */
   useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
@@ -160,6 +184,10 @@ export default function StudentAttendanceProgressBar({ onOverallPercentageChange
   }, []);
 
   // --- OVERALL PERCENTAGE CALCULATION ---
+  /**
+   * Memoized calculation for the aggregate attendance stats.
+   * Re-calculates only when attendanceData changes.
+   */
   const overallStats = useMemo(() => {
     if (!attendanceData || attendanceData.length === 0) {
       return { totalAttended: 0, totalClasses: 0, percentage: 0 };
@@ -176,7 +204,7 @@ export default function StudentAttendanceProgressBar({ onOverallPercentageChange
   }, [attendanceData]);
 
   // --- LIFTING STATE UP ---
-  // Notify parent component of overall percentage
+  // Notify parent component of overall percentage whenever it changes
   useEffect(() => {
     if (onOverallPercentageChange) {
       onOverallPercentageChange(overallStats.percentage);
@@ -184,7 +212,7 @@ export default function StudentAttendanceProgressBar({ onOverallPercentageChange
   }, [overallStats.percentage, onOverallPercentageChange]);
 
 
-  // Loading State
+  // Loading State Render
   if (loading) {
     return (
         <Card sx={{ width: '100%', maxWidth: '1000px', borderRadius: 3, p: 4, display: 'flex', justifyContent: 'center' }}>
@@ -193,7 +221,7 @@ export default function StudentAttendanceProgressBar({ onOverallPercentageChange
     );
   }
 
-  // Error State
+  // Error State Render
   if (error) {
     return (
         <Card sx={{ width: '100%', maxWidth: '1000px', borderRadius: 3, p: 2 }}>
@@ -202,7 +230,7 @@ export default function StudentAttendanceProgressBar({ onOverallPercentageChange
     );
   }
 
-  // Empty State
+  // Empty State Render
   if (attendanceData.length === 0) {
     return (
         <Card sx={{ width: '100%', maxWidth: '1000px', borderRadius: 3, p: 4 }}>

@@ -1,5 +1,12 @@
+/**
+ * @file DashboardStudent.jsx
+ * @description Main dashboard component for students. It displays an overview of attendance performance,
+ * including a circular progress summary, detailed linear progress bars, and improvement metrics.
+ * It manages the theme context and lifts state for overall attendance percentage.
+ * @author Mohd Waris
+ */
+
 import * as React from "react";
-// --- ADDED IMPORTS ---
 import { useState } from "react"; // For holding the percentage
 import {
   createTheme,
@@ -23,6 +30,10 @@ import { ArrowUpward, WarningAmberRounded } from "@mui/icons-material";
 // --- MOVED THEME DEFINITION HERE ---
 // This theme will be passed down to all children,
 // including StudentAttendanceProgressBar.
+/**
+ * Custom theme definition for the student dashboard.
+ * Defines success, warning, and error palettes for consistent UI feedback.
+ */
 const theme = createTheme({
   palette: {
     success: {
@@ -40,7 +51,9 @@ const theme = createTheme({
   },
 });
 
-
+/**
+ * Styled component to offset content below the app bar.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -50,6 +63,14 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+/**
+ * LabeledProgress Component
+ * Renders a linear progress bar with a label and percentage value.
+ * @param {Object} props - Component props.
+ * @param {string} props.label - Text label for the progress bar.
+ * @param {number} props.value - Percentage value (0-100).
+ * @param {string} props.color - Theme color key (e.g., "primary", "error", "success").
+ */
 const LabeledProgress = ({ label, value, color }) => (
   <Box sx={{ mb: 2 }}>
     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
@@ -85,15 +106,22 @@ const LabeledProgress = ({ label, value, color }) => (
 // --- Internal Component to use the theme ---
 // We need to split the component so `useTheme`
 // works, as it needs to be a child of <ThemeProvider>
+/**
+ * StudentDashboardContent Component
+ * Contains the main logic and UI for the student dashboard.
+ * It uses the theme context provided by the parent wrapper.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - Current user object containing name and details.
+ */
 const StudentDashboardContent = ({ user }) => {
   const theme = useTheme(); // Now this will work
   const requiredPercentage = 75;
 
   // --- STATE FOR OVERALL PERCENTAGE ---
-  // This state will be updated by the child component
+  // This state will be updated by the child component (StudentAttendanceProgressBar)
   const [overallPercentage, setOverallPercentage] = useState(0);
 
-  // Determine if attendance is low
+  // Determine if attendance is low based on the threshold
   const isBelowRequirement = overallPercentage < requiredPercentage;
   const neededPercentage = (requiredPercentage - overallPercentage).toFixed(1);
 
@@ -105,9 +133,10 @@ const StudentDashboardContent = ({ user }) => {
         Welcome back, {user?.name || "Student"}
       </Typography>
 
-      {/* Attendance Charts and Lists */}
+      {/* Attendance Charts and Lists Container */}
       <Box display="flex" gap={2} sx={{ my: 2 }}>
-        {/* Today's Attendance Summary Box */}
+        
+        {/* Left Column: Today's Attendance Summary Box */}
         <Box flex={1}>
           <Paper
             variant="outlined"
@@ -134,7 +163,7 @@ const StudentDashboardContent = ({ user }) => {
                 <Typography variant="h6">My Attendance</Typography>
               </Box>
 
-              {/* Chart bnega wo  */}
+              {/* Circular Progress Chart */}
               <Box sx={{ my: 3 }}>
                 {/* UPDATED: Use dynamic state variable */}
                 <CustomCircularProgress
@@ -142,6 +171,8 @@ const StudentDashboardContent = ({ user }) => {
                   label="Present"
                 />
               </Box>
+              
+              {/* Improvement Indicator */}
               <Box
                 sx={{
                   display: "flex",
@@ -156,7 +187,7 @@ const StudentDashboardContent = ({ user }) => {
                 </Typography>
               </Box>
 
-              {/* UPDATED: Conditional Alert */}
+              {/* UPDATED: Conditional Low Attendance Alert */}
               <Collapse in={isBelowRequirement}>
                 <Alert
                   severity="error"
@@ -175,13 +206,14 @@ const StudentDashboardContent = ({ user }) => {
                   <AlertTitle sx={{ fontWeight: "600" }}>
                     Attendance Alert
                   </AlertTitle>
-                  {/* UPDATED: Dynamic message */}
+                  {/* UPDATED: Dynamic message calculation */}
                   Your attendance is below the required {requiredPercentage}%.
                   You need to improve by {neededPercentage}% to meet the
                   minimum requirement.
                 </Alert>
               </Collapse>
 
+              {/* Linear Progress Bars for Quick Stats */}
               <Box sx={{ width: "100%" }}>
                 <LabeledProgress
                   label="Your attendance"
@@ -198,6 +230,8 @@ const StudentDashboardContent = ({ user }) => {
             </Box>
           </Paper>
         </Box>
+        
+        {/* Right Column: Detailed Attendance List */}
         <Box flex={3}>
           {/*
             --- UPDATED: PASSING THE PROP ---
@@ -215,6 +249,12 @@ const StudentDashboardContent = ({ user }) => {
 
 // --- Main Exported Component ---
 // This component now provides the theme to its children.
+/**
+ * DashboardStudent Component
+ * Wrapper component that applies the custom theme and renders the dashboard content.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - Current user object.
+ */
 export default function DashboardStudent({ user }) {
   return (
     <ThemeProvider theme={theme}>

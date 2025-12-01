@@ -1,3 +1,10 @@
+/**
+ * @file SideNav.jsx
+ * @description Component for the persistent side navigation drawer (SideNav) used in the Teacher portal.
+ * It manages routing for dashboard features, displays teacher profile summary, and includes a confirmation dialog for logout.
+ * @author Mohd Waris
+ */
+
 import { styled } from "@mui/material/styles";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation
@@ -8,6 +15,15 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box"; // Box added to exports
+
+// Dialog Imports
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 
 // Importing Icons for SideBar in the Drawer
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -18,18 +34,13 @@ import GroupIcon from "@mui/icons-material/Group";
 import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { Box } from "@mui/material";
-
-// Dialog Imports
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Button from "@mui/material/Button";
 
 const drawerWidth = 240;
 
+/**
+ * Styled component for the drawer header area.
+ * Ensures vertical alignment with the app bar toolbar.
+ */
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -39,20 +50,36 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+/**
+ * SideNav Component
+ * Main navigation panel for the teacher view.
+ * @param {Object} props - Component props.
+ * @param {Object} props.user - The current teacher user object.
+ * @param {Function} props.onLogout - Callback from the parent component (MiniDrawer) to handle session clearance.
+ */
 export default function SideNav({ user, onLogout }) {
   const navigate = useNavigate();
-  const location = useLocation(); // Hook to get the current route
-  const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+  const location = useLocation(); // Hook to get the current route pathname
+  const [openLogoutDialog, setOpenLogoutDialog] = useState(false); // State for logout confirmation modal
 
   // --- Handlers for Logout Dialog ---
+  /**
+   * Triggers the display of the logout confirmation dialog.
+   */
   const handleLogoutClick = () => {
     setOpenLogoutDialog(true);
   };
 
+  /**
+   * Hides the logout confirmation dialog.
+   */
   const handleCloseDialog = () => {
     setOpenLogoutDialog(false);
   };
 
+  /**
+   * Executes the final logout process: clears local storage, calls parent handler, and redirects.
+   */
   const handleConfirmLogout = () => {
     setOpenLogoutDialog(false);
 
@@ -61,7 +88,7 @@ export default function SideNav({ user, onLogout }) {
     localStorage.removeItem("university_refresh_token");
     localStorage.removeItem("university_user");
 
-    // 2. Call parent handler
+    // 2. Call parent handler (if provided, usually triggers state update)
     if (onLogout) {
       onLogout();
     }
@@ -70,7 +97,7 @@ export default function SideNav({ user, onLogout }) {
     navigate("/", { replace: true });
   };
 
-  // List of items
+  // Configuration for primary navigation links
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/teacher" },
     {
@@ -91,12 +118,17 @@ export default function SideNav({ user, onLogout }) {
     { text: "Students", icon: <GroupIcon />, path: "/teacher/students" },
   ];
 
+  // Configuration for secondary links (notifications, settings, logout)
   const menuItems2 = [
     { text: "Notifications", icon: <NotificationsIcon />, path: "/teacher/notifications" }, 
     { text: "Settings", icon: <SettingsIcon />, path: "/teacher/settings" },
-    { text: "Log Out", icon: <LogoutIcon />, action: "logout" },
+    { text: "Log Out", icon: <LogoutIcon />, action: "logout" }, // Use action for custom logic
   ];
 
+  /**
+   * Handles click actions for menu items (navigation or logout).
+   * @param {Object} item - The clicked menu item object.
+   */
   const handleItemClick = (item) => {
     if (item.action === "logout") {
       handleLogoutClick();
@@ -115,7 +147,8 @@ export default function SideNav({ user, onLogout }) {
     >
       <DrawerHeader />
       <Divider />
-      {/* Teacher Info List */}
+      
+      {/* Teacher Info List (Avatar, Name, Employee Code) */}
       <List>
         <ListItem disablePadding>
           <ListItemButton>
@@ -131,7 +164,7 @@ export default function SideNav({ user, onLogout }) {
       </List>
       <Divider />
       
-      {/* Main Nav List */}
+      {/* Main Navigation List (Dashboard, Attendance, etc.) */}
       <List>
         {menuItems.map((item) => {
           // Check if this item is currently selected
@@ -210,7 +243,7 @@ export default function SideNav({ user, onLogout }) {
         })}
       </List>
 
-      {/* Logout dialog box  */}
+      {/* Logout dialog box (Modal) */}
       <Dialog
         open={openLogoutDialog}
         onClose={handleCloseDialog}

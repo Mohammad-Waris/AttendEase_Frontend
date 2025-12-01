@@ -1,3 +1,10 @@
+/**
+ * @file AttendanceCards.jsx
+ * @description Dashboard component that displays a set of statistical cards summarizing student attendance data.
+ * Includes metrics for Total Students, Present, Absent, Not Marked, and Low Attendance.
+ * @author Mohd Waris
+ */
+
 import React from 'react';
 import { Grid, Paper, Typography, Box } from "@mui/material";
 import {
@@ -8,6 +15,16 @@ import {
   InfoOutlined,
 } from "@mui/icons-material";
 
+/**
+ * StatCard Component
+ * Renders a single statistic card with an icon, title, value, and specific styling.
+ * @param {Object} props - Component props.
+ * @param {string} props.title - The title of the statistic (e.g., "Total Students").
+ * @param {string|number} props.value - The numerical value to display.
+ * @param {JSX.Element} props.icon - The icon component to render.
+ * @param {string} props.color - Text color for the value and icon.
+ * @param {string} props.bgColor - Background color for the icon container.
+ */
 function StatCard({ title, value, icon, color, bgColor }) {
   return (
     <Grid size={{xs:2.4}}>
@@ -46,14 +63,25 @@ function StatCard({ title, value, icon, color, bgColor }) {
   );
 }
 
+/**
+ * AttendanceCards Component
+ * Calculates and displays the attendance summary statistics based on the provided list of students.
+ * @param {Object} props - Component props.
+ * @param {Array} props.students - Array of student objects containing status and attendance data.
+ */
 export default function AttendanceCards({ students = [] }) {
   const totalStudents = students.length;
+  
+  // Calculate statistics based on student status
   // Note: status is lowercase 'present'/'absent' based on our mapping in AttendanceContent
   const present = students.filter((s) => s.status === "present").length;
   const absent = students.filter((s) => s.status === "absent").length;
   const notMarked = students.filter((s) => !s.status).length; // Check for null/undefined
+  
+  // Identify students with attendance below the 75% threshold
   const lowAttendance = students.filter((s) => s.attendance < 75).length;
 
+  // Configuration for the statistic cards
   const cardData = [
     { title: "Total Students", value: totalStudents, icon: <PersonOutline />, color: "#0d6efd", bgColor: "rgba(13, 110, 253, 0.1)" },
     { title: "Present", value: present, icon: <CheckCircleOutline />, color: "#198754", bgColor: "rgba(25, 135, 84, 0.1)" },
