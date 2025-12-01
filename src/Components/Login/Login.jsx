@@ -562,7 +562,7 @@ export default function App() {
                 </Button>
                 <Grid container>
                   <Grid item xs>
-                    <Link href="forgotPassword" variant="body2" color="primary">
+                    <Link href="/AttendEase_Frontend/forgotPassword" variant="body2" color="primary">
                       Forgot password?
                     </Link>
                   </Grid>
