@@ -1,3 +1,11 @@
+/**
+ * @file Login.jsx
+ * @description Main authentication component for the University Portal. Handles user login, 
+ * JWT token validation, session persistence, and role-based redirection 
+ * (Student vs Teacher). Includes a custom UI theme and responsive layout.
+ * @author Mohd Waris
+ */
+
 import React, { useState, useEffect } from "react";
 // --- 1. IMPORT HOOK FOR NAVIGATION ---
 import { useNavigate } from "react-router-dom";
@@ -28,7 +36,10 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 // Ensure this path is correct in your project structure
 import MiniDrawerStudent from "../Student/Drawer/MiniDrawerStudent";
 
-// --- Custom University Theme ---
+/**
+ * Custom Material-UI theme configuration for the application.
+ * Defines the color palette (University colors), typography, and component overrides.
+ */
 const universityTheme = createTheme({
   palette: {
     primary: {
@@ -70,7 +81,11 @@ const universityTheme = createTheme({
   },
 });
 
-// --- HELPER: CHECK JWT EXPIRATION ---
+/**
+ * Checks if a JWT token has expired.
+ * * @param {string} token - The JWT token string.
+ * @returns {boolean} True if the token is missing, invalid, or expired; otherwise false.
+ */
 const isTokenExpired = (token) => {
   if (!token) return true;
   try {
@@ -96,8 +111,13 @@ const isTokenExpired = (token) => {
   }
 };
 
-// --- PLACEHOLDER FOR TEACHER DASHBOARD ---
-// (You can import your real TeacherDashboard here when ready)
+/**
+ * Placeholder component for the Teacher Dashboard.
+ * To be replaced by the actual Teacher module.
+ * * @param {Object} props - Component props.
+ * @param {Function} props.onLogout - Handler function to log the user out.
+ * @param {Object} props.user - The current user object containing details like name and code.
+ */
 const TeacherDashboard = ({ onLogout, user }) => {
   return (
     <Box
@@ -126,22 +146,37 @@ const TeacherDashboard = ({ onLogout, user }) => {
 // MAIN LOGIN & CONTROLLER COMPONENT
 // ----------------------------------------------------------------------
 
+/**
+ * Main Application Component acting as the Login Controller.
+ * Manages authentication state, form validation, API communication, and routing.
+ */
 export default function App() {
   const navigate = useNavigate();
   
+  // State for managing the current view ('loading', 'login', or 'dashboard')
   const [currentPage, setCurrentPage] = useState("loading");
+  // State for storing the authenticated user's details
   const [user, setUser] = useState(null);
 
   // Login Form State
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  // Error handling states
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loginError, setLoginError] = useState("");
+  
+  // Loading state for asynchronous operations
   const [isLoading, setIsLoading] = useState(false);
 
   // --- 3. CHECK LOCAL STORAGE & NAVIGATE AUTOMATICALLY ---
+  /**
+   * Effect hook to check for an existing session on component mount.
+   * If a valid token exists, it restores the session and redirects the user.
+   * If the token is expired, it clears storage and shows the login screen.
+   */
   useEffect(() => {
     const checkLogin = () => {
       const token = localStorage.getItem("university_token");
@@ -179,9 +214,22 @@ export default function App() {
     checkLogin();
   }, [navigate]);
 
+  /**
+   * Toggles the visibility of the password input field.
+   */
   const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  /**
+   * Prevents the default action on mouse down for the password visibility toggle
+   * to keep focus on the input field.
+   */
   const handleMouseDownPassword = (event) => event.preventDefault();
 
+  /**
+   * Validates the login form inputs.
+   * Checks for empty fields and valid email format.
+   * * @returns {boolean} True if the form is valid, false otherwise.
+   */
   const validateForm = () => {
     let isValid = true;
     setEmailError("");
@@ -207,6 +255,11 @@ export default function App() {
     return isValid;
   };
 
+  /**
+   * Handles the form submission for login.
+   * Performs validation, calls the API, processes the response, and handles errors.
+   * * @param {Object} event - The form submission event.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateForm()) return;
@@ -217,6 +270,7 @@ export default function App() {
     
     try {
       // --- 4. API CALL ---
+      // Sending login credentials to the backend
       const response = await fetch(`${API_URL}/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -233,6 +287,7 @@ export default function App() {
         const userRole = data.context?.role || "student";
 
         // --- SAVE TO LOCAL STORAGE ---
+        // Storing tokens for session persistence
         if (accessToken) {
           localStorage.setItem("university_token", accessToken);
           if (refreshToken) localStorage.setItem("university_refresh_token", refreshToken);
@@ -242,6 +297,7 @@ export default function App() {
         }
 
         // --- SAVE USER DATA (Correctly mapping empCode_RollNo) ---
+        // Constructing the user object to store locally
         const userData = {
           name: data.user_name || "User",
           email: email,
@@ -255,6 +311,7 @@ export default function App() {
         setUser(userData);
 
         // --- 5. NAVIGATE TO ROUTE ON SUCCESS ---
+        // Determine destination based on user role
         if (userRole === "teacher") {
             navigate("/teacher");
         } else {
@@ -262,6 +319,7 @@ export default function App() {
         }
         
       } else {
+        // Handle API errors (invalid credentials, etc.)
         setLoginError(
           data.message || data.error || data.msg || "Invalid credentials provided."
         );
@@ -274,6 +332,10 @@ export default function App() {
     }
   };
 
+  /**
+   * Clears user session data and logs the user out.
+   * Resets the state to the login screen.
+   */
   const handleLogout = () => {
     localStorage.removeItem("university_token");
     localStorage.removeItem("university_refresh_token");
@@ -286,6 +348,7 @@ export default function App() {
 
   // --- RENDER STATES ---
 
+  // State 1: Loading Indicator
   if (currentPage === "loading") {
     return (
       <Box
@@ -302,6 +365,7 @@ export default function App() {
   }
 
   // --- CONDITIONAL DASHBOARD RENDERING (Fallback if navigation doesn't happen immediately) ---
+  // State 2: Dashboard (Student or Teacher)
   if (currentPage === "dashboard") {
     return (
       <ThemeProvider theme={universityTheme}>
@@ -316,6 +380,7 @@ export default function App() {
   }
 
   // --- LOGIN PAGE RENDER ---
+  // State 3: Login Form
   return (
     <ThemeProvider theme={universityTheme}>
       <CssBaseline />
@@ -333,7 +398,7 @@ export default function App() {
           component="main"
           sx={{ height: "98vh", overflow: "hidden" }}
         >
-          {/* Image Side */}
+          {/* Image Side - Left Column */}
           <Grid
             item
             xs={false}
@@ -364,7 +429,7 @@ export default function App() {
             />
           </Grid>
 
-          {/* Form Side */}
+          {/* Form Side - Right Column */}
           <Grid
             item
             xs={12}
@@ -414,12 +479,14 @@ export default function App() {
                 Welcome back! Please enter your credentials.
               </Typography>
 
+              {/* Error Alert Display */}
               {loginError && (
                 <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
                   {loginError}
                 </Alert>
               )}
 
+              {/* Login Form Inputs */}
               <Box
                 component="form"
                 noValidate
