@@ -4,7 +4,7 @@
  * It manages routing for dashboard features, displays teacher profile summary, and includes a confirmation dialog for logout.
  * @author Mohd Waris
  */
-
+import * as React from "react";
 import { styled } from "@mui/material/styles";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // Added useLocation

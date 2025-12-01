@@ -303,7 +303,7 @@ const AttendanceContent = ({ user }) => {
     }
 
     if (successCount > 0) {
-        setApiFeedback({ open: true, message: `Attendance saved for ${successCount} subjects!`, severity: "success" });
+        setApiFeedback({ open: true, message: `Attendance saved succesfully!`, severity: "success" });
     }
   };
 
@@ -347,7 +347,7 @@ const AttendanceContent = ({ user }) => {
             open={apiFeedback.open} 
             autoHideDuration={4000} 
             onClose={() => setApiFeedback({...apiFeedback, open: false})}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
             <Alert severity={apiFeedback.severity} onClose={() => setApiFeedback({...apiFeedback, open: false})}>
                 {apiFeedback.message}

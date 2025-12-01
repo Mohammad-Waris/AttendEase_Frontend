@@ -1,3 +1,4 @@
+import React from "react";
 import Login from "./Components/Login/Login";
 import ForgotPassword from "./Components/Login/ForgotPassword";
 import ResetPassword from "./Components/Login/ResetPassword";
@@ -78,6 +79,7 @@ const router = createBrowserRouter([
   },
 ]);
 function App() {
+
   return (
     <>
       <RouterProvider router={router} />
