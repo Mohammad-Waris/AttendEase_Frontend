@@ -164,7 +164,7 @@ export default function ResetPassword() {
         setSuccess(true);
         // Optional: Redirect to login after a few seconds
         setTimeout(() => {
-            navigate("/");
+            navigate("/AttendEase_Frontend/");
         }, 3000);
       } else {
         // Handle backend errors (e.g. Invalid token, weak password)
@@ -349,7 +349,7 @@ export default function ResetPassword() {
               {/* Back to Login Link */}
               <Grid container justifyContent="center" sx={{ mt: 2 }}>
                   <Grid item>
-                    <Link href="/" variant="body2" color="primary">
+                    <Link href="/AttendEase_Frontend/" variant="body2" color="primary">
                       Back to Sign In
                     </Link>
                   </Grid>

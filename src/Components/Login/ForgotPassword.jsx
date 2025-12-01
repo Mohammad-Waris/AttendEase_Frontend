@@ -318,7 +318,7 @@ export default function App() {
                 {/* --- Navigation Helper Links --- */}
                 <Grid container justifyContent="center">
                   <Grid item>
-                    <Link href="/" variant="body2" color="primary">
+                    <Link href="/AttendEase_Frontend/" variant="body2" color="primary">
                       {"Back to Sign In"}
                     </Link>
                   </Grid>

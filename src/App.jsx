@@ -16,70 +16,76 @@ import Notifications from "./Components/Teacher/Notification/Notification";
 import SettingsTeacher from "./Components/Teacher/Settings/SettingsTeacher";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-const router = createBrowserRouter([
+const BASE_PATH = import.meta.env.VITE_BASE_PATH || "/AttendEase_Frontend/";
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <Login />,
+    },
+    {
+      path: "/reset/:uid/:token",
+      element: <ResetPassword />,
+    },
+    {
+      path: "/forgotPassword",
+      element: <ForgotPassword />,
+    },
+    {
+      path: "/teacher",
+      element: <MiniDrawer />,
+    },
+    {
+      path: "/teacher/attendance",
+      element: <Attendance />,
+    },
+    {
+      path: "/teacher/createEvents",
+      element: <CreateEvents />,
+    },
+    {
+      path: "/teacher/eventsFeed",
+      element: <EventsFeed />, // CORRECTED: Changed from CreateEvents to EventsFeed
+    },
+    {
+      path: "/teacher/students",
+      element: <Students />,
+    },
+    {
+      path: "/teacher/notifications",
+      element: <Notifications />,
+    },
+    {
+      path: "/teacher/settings",
+      element: <SettingsTeacher />,
+    },
+    {
+      path: "/student",
+      element: <MiniDrawerStudent />,
+    },
+    {
+      path: "/student/myCourses",
+      element: <CoursesComponent />,
+    },
+    {
+      path: "/student/calendar",
+      element: <StudentCalendarPage />,
+    },
+    {
+      path: "/student/assignments",
+      element: <Assignments />,
+    },
+    {
+      path: "/student/settings",
+      element: <SettingsStudent />,
+    },
+  ],
   {
-    path: "/",
-    element: <Login />,
-  },
-  {
-    path: "/reset/:uid/:token",
-    element: <ResetPassword />,
-  },
-  {
-    path: "/forgotPassword",
-    element: <ForgotPassword />,
-  },
-  {
-    path: "/teacher",
-    element: <MiniDrawer />,
-  },
-  {
-    path: "/teacher/attendance",
-    element: <Attendance />,
-  },
-  {
-    path: "/teacher/createEvents",
-    element: <CreateEvents />,
-  },
-  {
-    path: "/teacher/eventsFeed",
-    element: <EventsFeed />, // CORRECTED: Changed from CreateEvents to EventsFeed
-  },
-  {
-    path: "/teacher/students",
-    element: <Students />,
-  },
-  {
-    path: "/teacher/notifications",
-    element: <Notifications />,
-  },
-  {
-    path: "/teacher/settings",
-    element: <SettingsTeacher />,
-  },
-  {
-    path: "/student",
-    element: <MiniDrawerStudent />,
-  },
-  {
-    path: "/student/myCourses",
-    element: <CoursesComponent />,
-  },
-  {
-    path: "/student/calendar",
-    element: <StudentCalendarPage />,
-  },
-  {
-    path: "/student/assignments",
-    element: <Assignments />,
-  },
-  {
-    path: "/student/settings",
-    element: <SettingsStudent />,
-  },
-]);
+    // *** CRITICAL ADDITION ***
+    basename: BASE_PATH,
+  }
+);
 function App() {
-
   return (
     <>
       <RouterProvider router={router} />
