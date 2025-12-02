@@ -164,7 +164,7 @@ export default function ResetPassword() {
         setSuccess(true);
         // Optional: Redirect to login after a few seconds
         setTimeout(() => {
-          navigate("/AttendEase_Frontend/");
+          navigate("/");
         }, 3000);
       } else {
         // Handle backend errors (e.g. Invalid token, weak password)
