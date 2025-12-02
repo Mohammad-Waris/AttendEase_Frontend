@@ -267,7 +267,7 @@ export default function ResetPassword() {
                 gutterBottom
                 sx={{ fontWeight: "bold" }}
               >
-                My University Portal
+                AttendEase Portal
               </Typography>
 
               <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>

@@ -245,7 +245,7 @@ export default function App() {
                 gutterBottom
                 sx={{ fontWeight: "bold" }}
               >
-                My University Portal
+                AttendEase Portal
               </Typography>
 
               {/* Form Icon */}
