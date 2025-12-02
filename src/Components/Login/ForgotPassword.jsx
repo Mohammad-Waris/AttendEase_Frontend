@@ -22,6 +22,7 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { API_URL } from "../../config";
+import { Link as RouterLink } from "react-router-dom";
 
 /**
  * Custom Material-UI theme configuration.
@@ -318,7 +319,10 @@ export default function App() {
                 {/* --- Navigation Helper Links --- */}
                 <Grid container justifyContent="center">
                   <Grid item>
-                    <Link href="/" variant="body2" color="primary">
+                    <Link 
+                    component={RouterLink}
+                    to="/" 
+                    variant="body2" color="primary">
                       {"Back to Sign In"}
                     </Link>
                   </Grid>

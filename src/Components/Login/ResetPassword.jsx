@@ -26,7 +26,7 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { API_URL } from "../../config";
-
+import { Link as RouterLink } from "react-router-dom";
 /**
  * Custom University Theme configuration.
  * Ensures consistent branding across Login, Forgot Password, and Reset Password screens.
@@ -92,7 +92,7 @@ export default function ResetPassword() {
   // --- Form State Management ---
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   // --- UI State Management ---
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -125,8 +125,8 @@ export default function ResetPassword() {
       return false;
     }
     if (password.length < 6) {
-        setError("Password must be at least 6 characters.");
-        return false;
+      setError("Password must be at least 6 characters.");
+      return false;
     }
     return true;
   };
@@ -146,7 +146,7 @@ export default function ResetPassword() {
     try {
       // Construct the API URL dynamically using the URL params
       const url = `${API_URL}/reset/${uid}/${token}/`;
-      
+
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -164,12 +164,15 @@ export default function ResetPassword() {
         setSuccess(true);
         // Optional: Redirect to login after a few seconds
         setTimeout(() => {
-            navigate("/AttendEase_Frontend/");
+          navigate("/AttendEase_Frontend/");
         }, 3000);
       } else {
         // Handle backend errors (e.g. Invalid token, weak password)
         // Adjust based on your API's error structure
-        const errorMsg = data.detail || data.error || "Failed to reset password. The link may be invalid or expired.";
+        const errorMsg =
+          data.detail ||
+          data.error ||
+          "Failed to reset password. The link may be invalid or expired.";
         setError(errorMsg);
       }
     } catch (err) {
@@ -192,7 +195,11 @@ export default function ResetPassword() {
           height: "100vh",
         }}
       >
-        <Grid container component="main" sx={{ height: "98vh", overflow: 'hidden' }}>
+        <Grid
+          container
+          component="main"
+          sx={{ height: "98vh", overflow: "hidden" }}
+        >
           {/* --- Image Side (Left) --- */}
           <Grid
             item
@@ -216,7 +223,10 @@ export default function ResetPassword() {
             <Box
               sx={{
                 position: "absolute",
-                top: 0, left: 0, right: 0, bottom: 0,
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
                 backgroundColor: "rgba(0, 30, 60, 0.4)",
               }}
             />
@@ -278,81 +288,97 @@ export default function ResetPassword() {
 
               {/* --- Success Message & Redirect Alert --- */}
               {success ? (
-                 <Alert severity="success" sx={{ width: '100%', mt: 2 }}>
-                   Password reset successful! Redirecting to login...
-                 </Alert>
+                <Alert severity="success" sx={{ width: "100%", mt: 2 }}>
+                  Password reset successful! Redirecting to login...
+                </Alert>
               ) : (
-                <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
-                    
-                    {/* Error Display */}
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
-                    )}
+                <Box
+                  component="form"
+                  noValidate
+                  onSubmit={handleSubmit}
+                  sx={{ mt: 1, width: "100%" }}
+                >
+                  {/* Error Display */}
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
 
-                    {/* New Password Input */}
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="New Password"
-                        type={showPassword ? "text" : "password"}
-                        id="password"
-                        autoComplete="new-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={loading}
-                        InputProps={{
-                            endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                aria-label="toggle password visibility"
-                                onClick={handleClickShowPassword}
-                                onMouseDown={handleMouseDownPassword}
-                                edge="end"
-                                >
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                            ),
-                        }}
-                    />
+                  {/* New Password Input */}
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="New Password"
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
 
-                    {/* Confirm Password Input */}
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="confirmPassword"
-                        label="Confirm New Password"
-                        type={showPassword ? "text" : "password"}
-                        id="confirmPassword"
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        disabled={loading}
-                    />
+                  {/* Confirm Password Input */}
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="confirmPassword"
+                    label="Confirm New Password"
+                    type={showPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={loading}
+                  />
 
-                    {/* Submit Button */}
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                        disabled={loading}
-                    >
-                        {loading ? "Saving..." : "Save New Password"}
-                    </Button>
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                    disabled={loading}
+                  >
+                    {loading ? "Saving..." : "Save New Password"}
+                  </Button>
                 </Box>
               )}
-              
+
               {/* Back to Login Link */}
               <Grid container justifyContent="center" sx={{ mt: 2 }}>
-                  <Grid item>
-                    <Link href="/AttendEase_Frontend/" variant="body2" color="primary">
+                <Grid item>
+                  <Link
+                    component={RouterLink}
+                    to="/"
+                    variant="body2"
+                    color="primary"
+                  >
+                    Back to Sign In
+                  </Link>
+                  {/* <Link 
+                    href="/AttendEase_Frontend/" 
+                    variant="body2" color="primary">
                       Back to Sign In
-                    </Link>
-                  </Grid>
+                    </Link> */}
+                </Grid>
               </Grid>
 
               {/* Copyright Footer */}
