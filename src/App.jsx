@@ -16,7 +16,7 @@ import Notifications from "./Components/Teacher/Notification/Notification";
 import SettingsTeacher from "./Components/Teacher/Settings/SettingsTeacher";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
-const BASE_PATH = import.meta.env.VITE_BASE_PATH || "/AttendEase_Frontend";
+const BASE_PATH = import.meta.env.VITE_BASE_PATH || "/";
 const router = createBrowserRouter(
   [
     {

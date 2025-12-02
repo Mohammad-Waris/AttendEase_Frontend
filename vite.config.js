@@ -6,5 +6,5 @@ export default defineConfig({
     port: 3000
   },
   plugins: [react()],
-  base:process.env.VITE_BASE_PATH||"/AttendEase_Frontend"
+  base:process.env.VITE_BASE_PATH||"/"
 });
