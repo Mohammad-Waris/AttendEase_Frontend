@@ -1,7 +1,7 @@
 /**
  * @file Login.jsx
- * @description Main authentication component for the University Portal. Handles user login, 
- * JWT token validation, session persistence, and role-based redirection 
+ * @description Main authentication component for the University Portal. Handles user login,
+ * JWT token validation, session persistence, and role-based redirection
  * (Student vs Teacher). Includes a custom UI theme and responsive layout.
  * @author Mohd Waris
  */
@@ -31,6 +31,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
+// This is to be removed
+import { Link as RouterLink } from "react-router-dom";
 
 // --- IMPORT YOUR REAL COMPONENT ---
 // Ensure this path is correct in your project structure
@@ -90,19 +93,19 @@ const isTokenExpired = (token) => {
   if (!token) return true;
   try {
     // 1. Get the payload part of the JWT
-    const base64Url = token.split('.')[1];
+    const base64Url = token.split(".")[1];
     // 2. Convert Base64Url to Base64
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     // 3. Decode Base64 to JSON string
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
     );
     // 4. Parse JSON
     const { exp } = JSON.parse(jsonPayload);
-    
+
     // 5. Check if current time (in seconds) is greater than expiration
     const currentTime = Date.now() / 1000;
     return currentTime > exp;
@@ -134,8 +137,15 @@ const TeacherDashboard = ({ onLogout, user }) => {
         Teacher Dashboard
       </Typography>
       <Typography variant="h6">Welcome, {user?.name || "Professor"}</Typography>
-      <Typography variant="body1">Employee Code: {user?.code || "N/A"}</Typography>
-      <Button variant="contained" color="error" onClick={onLogout} sx={{ mt: 3 }}>
+      <Typography variant="body1">
+        Employee Code: {user?.code || "N/A"}
+      </Typography>
+      <Button
+        variant="contained"
+        color="error"
+        onClick={onLogout}
+        sx={{ mt: 3 }}
+      >
         Logout
       </Button>
     </Box>
@@ -152,7 +162,7 @@ const TeacherDashboard = ({ onLogout, user }) => {
  */
 export default function App() {
   const navigate = useNavigate();
-  
+
   // State for managing the current view ('loading', 'login', or 'dashboard')
   const [currentPage, setCurrentPage] = useState("loading");
   // State for storing the authenticated user's details
@@ -162,12 +172,12 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   // Error handling states
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loginError, setLoginError] = useState("");
-  
+
   // Loading state for asynchronous operations
   const [isLoading, setIsLoading] = useState(false);
 
@@ -190,7 +200,7 @@ export default function App() {
           localStorage.removeItem("university_token");
           localStorage.removeItem("university_refresh_token");
           localStorage.removeItem("university_user");
-          
+
           // Stay on Login Page and show error
           setCurrentPage("login");
           setLoginError("Your session has expired. Please log in again.");
@@ -198,12 +208,12 @@ export default function App() {
           // Token is valid -> Restore session and NAVIGATE
           const parsedUser = JSON.parse(savedUser);
           setUser(parsedUser);
-          
+
           // Redirect based on role immediately
           if (parsedUser.role === "teacher") {
-              navigate("/teacher");
+            navigate("/teacher");
           } else {
-              navigate("/student"); 
+            navigate("/student");
           }
         }
       } else {
@@ -267,7 +277,7 @@ export default function App() {
     setIsLoading(true);
     setLoginError("");
     // const url_start = "http://127.0.0.1:8000/api";
-    
+
     try {
       // --- 4. API CALL ---
       // Sending login credentials to the backend
@@ -290,7 +300,8 @@ export default function App() {
         // Storing tokens for session persistence
         if (accessToken) {
           localStorage.setItem("university_token", accessToken);
-          if (refreshToken) localStorage.setItem("university_refresh_token", refreshToken);
+          if (refreshToken)
+            localStorage.setItem("university_refresh_token", refreshToken);
         } else {
           // Fallback if token is missing
           localStorage.setItem("university_token", "demo-access-token");
@@ -302,9 +313,9 @@ export default function App() {
           name: data.user_name || "User",
           email: email,
           role: userRole,
-          id: data.user_id,                   // Main User ID (e.g., 2)
-          contextId: data.context?.id,        // Role specific ID (e.g., 1)
-          code: data.context?.empCode_RollNo  // Stores "TCH001" or Roll Number
+          id: data.user_id, // Main User ID (e.g., 2)
+          contextId: data.context?.id, // Role specific ID (e.g., 1)
+          code: data.context?.empCode_RollNo, // Stores "TCH001" or Roll Number
         };
 
         localStorage.setItem("university_user", JSON.stringify(userData));
@@ -313,15 +324,17 @@ export default function App() {
         // --- 5. NAVIGATE TO ROUTE ON SUCCESS ---
         // Determine destination based on user role
         if (userRole === "teacher") {
-            navigate("/teacher");
+          navigate("/teacher");
         } else {
-            navigate("/student");
+          navigate("/student");
         }
-        
       } else {
         // Handle API errors (invalid credentials, etc.)
         setLoginError(
-          data.message || data.error || data.msg || "Invalid credentials provided."
+          data.message ||
+            data.error ||
+            data.msg ||
+            "Invalid credentials provided."
         );
       }
     } catch (error) {
@@ -562,9 +575,17 @@ export default function App() {
                 </Button>
                 <Grid container>
                   <Grid item xs>
-                    <Link href="/forgotPassword" variant="body2" color="primary">
+                    <Link
+                      component={RouterLink}
+                      to="/forgotPassword"
+                      variant="body2"
+                      color="primary"
+                    >
                       Forgot password?
                     </Link>
+                    {/* <Link href="/forgotPassword" variant="body2" color="primary">
+                      Forgot password?
+                    </Link> */}
                   </Grid>
                 </Grid>
                 <Typography
